@@ -1,0 +1,16 @@
+meta {
+  name: screenshot
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{url}}/screenshot?url=https://ui.shadcn.com&theme=dark
+  body: none
+  auth: none
+}
+
+params:query {
+  url: https://ui.shadcn.com
+  theme: dark
+}

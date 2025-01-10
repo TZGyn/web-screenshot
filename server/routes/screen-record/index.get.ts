@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer'
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { unlink } from 'node:fs/promises'
 import { z } from 'zod'
+import { devices, deviceViewPort } from '~~/utils/devices'
 
 export default eventHandler(async (event) => {
 	const query = z
@@ -10,6 +11,7 @@ export default eventHandler(async (event) => {
 			theme: z
 				.union([z.literal('light'), z.literal('dark')])
 				.default('light'),
+			device: z.enum(devices).default('desktop'),
 		})
 		.safeParse(getQuery(event))
 
@@ -17,11 +19,11 @@ export default eventHandler(async (event) => {
 		return 'Invalid'
 	}
 
-	const { url, theme } = query.data
+	const { url, theme, device } = query.data
 
 	const browser = await puppeteer.launch({
 		headless: true,
-		defaultViewport: { width: 1920, height: 1080 },
+		defaultViewport: deviceViewPort[device],
 		args: ['--no-sandbox'],
 	})
 
@@ -39,7 +41,7 @@ export default eventHandler(async (event) => {
 	})
 
 	const recorderOptions = {
-		fps: 25,
+		fps: 60,
 	}
 
 	const recorder = new PuppeteerScreenRecorder(page, recorderOptions)
@@ -48,21 +50,18 @@ export default eventHandler(async (event) => {
 
 	await recorder.start(`${id}.mp4`)
 
-	await page.evaluate(async () => {
-		await new Promise((resolve) => {
-			var totalHeight = 0
-			var distance = 100
-			var timer = setInterval(() => {
-				var scrollHeight = document.body.scrollHeight
-				window.scrollBy(0, distance)
-				totalHeight += distance
+	const height = await page.evaluate(() => {
+		return document.body.scrollHeight
+	})
 
-				if (totalHeight >= scrollHeight - window.innerHeight) {
-					clearInterval(timer)
-					resolve(0)
-				}
-			}, 150)
-		})
+	// https://github.com/puppeteer/puppeteer/issues/13296
+	const session = await page.createCDPSession()
+
+	await session.send('Input.synthesizeScrollGesture', {
+		x: 0,
+		y: 0,
+		yDistance: -height,
+		speed: 400,
 	})
 
 	await recorder.stop()

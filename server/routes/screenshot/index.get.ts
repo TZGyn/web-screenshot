@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer'
 import { z } from 'zod'
+import { devices, deviceViewPort } from '~~/utils/devices'
 
 export default eventHandler(async (event) => {
 	const query = z
@@ -8,6 +9,7 @@ export default eventHandler(async (event) => {
 			theme: z
 				.union([z.literal('light'), z.literal('dark')])
 				.default('light'),
+			device: z.enum(devices).default('desktop'),
 		})
 		.safeParse(getQuery(event))
 
@@ -15,11 +17,11 @@ export default eventHandler(async (event) => {
 		return 'Invalid'
 	}
 
-	const { url, theme } = query.data
+	const { url, theme, device } = query.data
 
 	const browser = await puppeteer.launch({
 		headless: true,
-		defaultViewport: { width: 1920, height: 1080 },
+		defaultViewport: deviceViewPort[device],
 		args: ['--no-sandbox'],
 	})
 

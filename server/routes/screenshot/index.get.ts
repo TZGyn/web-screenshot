@@ -10,6 +10,9 @@ export default eventHandler(async (event) => {
 				.union([z.literal('light'), z.literal('dark')])
 				.default('light'),
 			device: z.enum(devices).default('desktop'),
+			fullPage: z
+				.enum(['true', 'false'])
+				.transform((value) => value === 'true'),
 		})
 		.safeParse(getQuery(event))
 
@@ -17,7 +20,7 @@ export default eventHandler(async (event) => {
 		return 'Invalid'
 	}
 
-	const { url, theme, device } = query.data
+	const { url, theme, device, fullPage } = query.data
 
 	const browser = await puppeteer.launch({
 		headless: true,
@@ -38,7 +41,7 @@ export default eventHandler(async (event) => {
 		waitUntil: 'networkidle2',
 	})
 
-	const data = await page.screenshot({ fullPage: true })
+	const data = await page.screenshot({ fullPage: fullPage })
 
 	await browser.close()
 

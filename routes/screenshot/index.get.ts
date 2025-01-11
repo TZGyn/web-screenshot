@@ -1,6 +1,44 @@
 import puppeteer from 'puppeteer'
 import { z } from 'zod'
 
+defineRouteMeta({
+	openAPI: {
+		tags: ['screenshot'],
+		description: 'Screenshot a web page',
+		parameters: [
+			{ in: 'query', name: 'url', required: true },
+			{
+				in: 'query',
+				name: 'theme',
+
+				schema: { type: 'string', enum: ['light', 'dark'] },
+			},
+			{ in: 'query', name: 'device' },
+			{
+				in: 'query',
+				name: 'fullPage',
+				schema: {
+					type: 'boolean',
+					nullable: false,
+				},
+			},
+		],
+		responses: {
+			200: {
+				description: 'Image Data',
+				content: {
+					'image/png': {
+						schema: {
+							type: 'string',
+							format: 'binary',
+						},
+					},
+				},
+			},
+		},
+	},
+})
+
 export default eventHandler(async (event) => {
 	const query = z
 		.object({

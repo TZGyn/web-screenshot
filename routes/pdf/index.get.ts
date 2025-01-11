@@ -1,6 +1,27 @@
 import puppeteer from 'puppeteer'
 import { z } from 'zod'
 
+defineRouteMeta({
+	openAPI: {
+		tags: ['pdf'],
+		description: 'Turn web page into pdf',
+		parameters: [{ in: 'query', name: 'url', required: true }],
+		responses: {
+			200: {
+				description: 'PDF',
+				content: {
+					'application/pdf': {
+						schema: {
+							type: 'string',
+							format: 'binary',
+						},
+					},
+				},
+			},
+		},
+	},
+})
+
 export default eventHandler(async (event) => {
 	const query = z
 		.object({

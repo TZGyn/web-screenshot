@@ -3,6 +3,41 @@ import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { unlink } from 'node:fs/promises'
 import { z } from 'zod'
 
+defineRouteMeta({
+	openAPI: {
+		tags: ['screen record'],
+		description: 'Screenshot a web page',
+		parameters: [
+			{ in: 'query', name: 'url', required: true },
+			{
+				in: 'query',
+				name: 'theme',
+				schema: { type: 'string', enum: ['light', 'dark'] },
+			},
+			{
+				in: 'query',
+				name: 'device',
+				schema: {
+					type: 'string',
+				},
+			},
+		],
+		responses: {
+			200: {
+				description: 'Video',
+				content: {
+					'video/mp4': {
+						schema: {
+							type: 'string',
+							format: 'binary',
+						},
+					},
+				},
+			},
+		},
+	},
+})
+
 export default eventHandler(async (event) => {
 	const query = z
 		.object({

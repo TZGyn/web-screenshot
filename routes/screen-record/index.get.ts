@@ -2,7 +2,6 @@ import puppeteer from 'puppeteer'
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { unlink } from 'node:fs/promises'
 import { z } from 'zod'
-import { devices, deviceViewPort } from '~~/utils/devices'
 
 export default eventHandler(async (event) => {
 	const query = z

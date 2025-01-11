@@ -1,6 +1,5 @@
 import puppeteer from 'puppeteer'
 import { z } from 'zod'
-import { devices, deviceViewPort } from '~~/utils/devices'
 
 export default eventHandler(async (event) => {
 	const query = z

@@ -49,6 +49,8 @@ export default eventHandler(async (event) => {
 			device: z.enum(devices).default('desktop'),
 			fullPage: z
 				.enum(['true', 'false'])
+				.optional()
+				.default('false')
 				.transform((value) => value === 'true'),
 		})
 		.safeParse(getQuery(event))
